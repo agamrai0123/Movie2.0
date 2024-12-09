@@ -77,3 +77,13 @@
 ├── go.mod                      # Go modules (dependencies)
 ├── go.sum                      # Go modules checksum
 └── README.md                   # Project documentation
+
+
+
+    USERS (1)  --- (M)  TICKETS  (M) --- (1) THEATRE_SCHEDULE
+                    \
+                     (1) SEATS (Each ticket is for a specific seat)
+
+    THEATRE (1)  --- (M)  THEATRE_SCHEDULE (1) --- (M) TICKETS
+             \
+              (M) SEATS

@@ -1,29 +1,38 @@
 package utils
 
 import (
-	"os"
+	"log"
 
-	"github.com/sirupsen/logrus"
+	"go.uber.org/zap"
 )
 
-var log = logrus.New()
+var Logger *zap.Logger
 
-func InitializeLogger() {
-	log.SetFormatter(&logrus.JSONFormatter{})
-	log.SetOutput(os.Stdout)
-	log.SetLevel(logrus.InfoLevel)
+// InitLogger initializes a production logger
+func InitLogger() {
+	var err error
+	Logger, err = zap.NewProduction() // Use NewDevelopment() for local development
+	if err != nil {
+		log.Fatalf("failed to initialize logger: %v", err)
+	}
 }
 
-func LogRequest(method, url string, statusCode int) {
-	log.WithFields(logrus.Fields{
-		"method":      method,
-		"url":         url,
-		"status_code": statusCode,
-	}).Info("HTTP Request")
+// Info logs an informational message
+func Info(message string, fields ...zap.Field) {
+	Logger.Info(message, fields...)
 }
 
-func LogError(message string, err error) {
-	log.WithFields(logrus.Fields{
-		"error": err.Error(),
-	}).Error(message)
+// Error logs an error message
+func Error(message string, fields ...zap.Field) {
+	Logger.Error(message, fields...)
+}
+
+// Debug logs a debug message
+func Debug(message string, fields ...zap.Field) {
+	Logger.Debug(message, fields...)
+}
+
+// Warn logs a warning message
+func Warn(message string, fields ...zap.Field) {
+	Logger.Warn(message, fields...)
 }

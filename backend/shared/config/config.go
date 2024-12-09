@@ -14,7 +14,7 @@ type Config struct {
 
 func LoadConfig() (*Config, error) {
 	// Set the path to look for the .env file
-	viper.AddConfigPath("")
+	viper.AddConfigPath("../../../")
 	viper.SetConfigName(".env")
 	viper.SetConfigType("env")
 

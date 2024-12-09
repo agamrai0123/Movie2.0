@@ -1,8 +1,9 @@
 package models
 
 type Movie struct {
-	ID          string `json:"id"`
+	MovieID     string `json:"movie_id"`
+	ScheduleID  string `json:"schedule_id"`
 	Name        string `json:"name"`
 	Description string `json:"description"`
-	ImageSrc    string `json:"image"`
+	Runtime     string `json:"runtime"`
 }
