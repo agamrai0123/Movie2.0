@@ -29,3 +29,14 @@ func CloseDB(db *sql.DB) {
 	log.Printf("DB connection closed")
 	db = nil
 }
+
+func GetActiveConnections(db *sql.DB) (int, error) {
+	var activeConnections int
+	query := "SELECT COUNT(*) FROM pg_stat_activity WHERE state = 'active'"
+	err := db.QueryRow(query).Scan(&activeConnections)
+	if err != nil {
+		log.Fatalf("Error executing query: %v", err)
+		return -1, err
+	}
+	return activeConnections, nil
+}
