@@ -23,7 +23,7 @@ func (s *MovieService) GetMovieByName(name string) (*models.Movie, error) {
 	return s.Repo.GetMovieByName(name)
 }
 
-func (s *MovieService) GetMovieByID(id uint) (*models.Movie, error) {
+func (s *MovieService) GetMovieByID(id int) (*models.Movie, error) {
 	return s.Repo.GetMovieByID(id)
 }
 
@@ -31,10 +31,10 @@ func (s *MovieService) CreateMovie(movie *models.Movie) error {
 	return s.Repo.CreateMovie(movie)
 }
 
-// func (s *MovieService) UpdateMovie(id uint, updatedMovie *models.Movie) error {
-// 	return s.Repo.UpdateMovie(id, updatedMovie)
-// }
+func (s *MovieService) UpdateMovie(id int, updatedMovie *models.Movie) error {
+	return s.Repo.UpdateMovie(id, updatedMovie)
+}
 
-func (s *MovieService) DeleteMovie(id uint) error {
+func (s *MovieService) DeleteMovie(id int) error {
 	return s.Repo.DeleteMovie(id)
 }

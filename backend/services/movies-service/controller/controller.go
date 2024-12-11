@@ -2,6 +2,7 @@ package controllers
 
 import (
 	"net/http"
+	"strconv"
 
 	"github.com/agamrai0123/Movie2.0/backend/services/movies-service/models"
 	"github.com/agamrai0123/Movie2.0/backend/services/movies-service/services"
@@ -29,7 +30,11 @@ func (mc *MovieController) GetAllMovies(c *gin.Context) {
 }
 
 func (mc *MovieController) GetMovieByID(c *gin.Context) {
-	id := c.Param("id")
+	id, err := strconv.Atoi(c.Param("id"))
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid ID format"})
+		return
+	}
 	movie, err := mc.Service.GetMovieByID(id)
 	if err != nil {
 		c.JSON(http.StatusNotFound, gin.H{"error": "Movie not found"})
@@ -54,7 +59,11 @@ func (mc *MovieController) CreateMovie(c *gin.Context) {
 }
 
 func (mc *MovieController) UpdateMovie(c *gin.Context) {
-	id := c.Param("id")
+	id, err := strconv.Atoi(c.Param("id"))
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid ID format"})
+		return
+	}
 	var movie models.Movie
 	if err := c.ShouldBindJSON(&movie); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid JSON"})
@@ -70,7 +79,11 @@ func (mc *MovieController) UpdateMovie(c *gin.Context) {
 }
 
 func (mc *MovieController) DeleteMovie(c *gin.Context) {
-	id := c.Param("id")
+	id, err := strconv.Atoi(c.Param("id"))
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid ID format"})
+		return
+	}
 	if err := mc.Service.DeleteMovie(id); err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return

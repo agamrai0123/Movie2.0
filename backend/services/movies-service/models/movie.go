@@ -1,12 +1,10 @@
 package models
 
-import "time"
-
 type Movie struct {
-	MovieID     uint      `json:"movie_id"`
-	ScheduleID  uint      `json:"schedule_id"`
-	Name        string    `json:"name"`
-	Description string    `json:"description"`
-	Runtime     time.Time `json:"runtime"`
+	MovieID     int    `json:"movie_id"`
+	ScheduleID  int    `json:"schedule_id"`
+	Name        string `json:"name"`
+	Description string `json:"description"`
+	Runtime     string `json:"runtime"`
 	// Genres      []string `json:"genres"`
 }

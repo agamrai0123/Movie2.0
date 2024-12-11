@@ -5,7 +5,9 @@ import (
 	"fmt"
 	"log"
 
+	"github.com/agamrai0123/Movie2.0/backend/services/movies-service/database"
 	"github.com/agamrai0123/Movie2.0/backend/services/movies-service/models"
+	"github.com/agamrai0123/Movie2.0/backend/shared/config"
 
 	_ "github.com/lib/pq"
 )
@@ -15,11 +17,20 @@ type MovieRepository struct {
 }
 
 func NewMovieRepository() *MovieRepository {
-	connStr := "user=postgres password=yourpassword dbname=movies_db sslmode=disable"
-	db, err := sql.Open("postgres", connStr)
+	config, err := config.LoadConfig()
+	if err != nil {
+		log.Fatalf("Error loading config: %v", err)
+	}
+	db, err := database.InitDB(config.DatabaseURL)
 	if err != nil {
 		panic(fmt.Sprintf("Failed to connect to the database: %v", err))
 	}
+	n, err := database.GetActiveConnections(db)
+	if err != nil {
+		log.Fatalf("Error getting active connections: %v", err)
+	}
+	log.Printf("Active connections: %d", n)
+
 	return &MovieRepository{
 		DB: db,
 	}
@@ -36,7 +47,7 @@ func (r *MovieRepository) GetAllMovies() ([]models.Movie, error) {
 	var movies []models.Movie
 	for rows.Next() {
 		var movie models.Movie
-		if err := rows.Scan(&movie.MovieID, &movie.Name, &movie.Runtime, &movie.ScheduleID, &movie.Description); err != nil {
+		if err := rows.Scan(&movie.MovieID, &movie.ScheduleID, &movie.Name, &movie.Description, &movie.Runtime); err != nil {
 			return nil, err
 		}
 		movies = append(movies, movie)
@@ -45,7 +56,7 @@ func (r *MovieRepository) GetAllMovies() ([]models.Movie, error) {
 }
 
 func (r *MovieRepository) GetMovieByName(name string) (*models.Movie, error) {
-	var movie *models.Movie
+	movie := &models.Movie{}
 	query := "SELECT movie_id, schedule_id, name, description, runtime FROM movies WHERE name = $1"
 	row := r.DB.QueryRow(query, name)
 	err := row.Scan(&movie.MovieID, &movie.ScheduleID, &movie.Name, &movie.Description, &movie.Runtime)
@@ -59,9 +70,9 @@ func (r *MovieRepository) GetMovieByName(name string) (*models.Movie, error) {
 	return movie, nil
 }
 
-func (r *MovieRepository) GetMovieByID(movieID uint) (*models.Movie, error) {
-	var movie *models.Movie
-	query := "SELECT movie_id, schedule_id, name, description, runtime FROM movies WHERE id = $1"
+func (r *MovieRepository) GetMovieByID(movieID int) (*models.Movie, error) {
+	movie := &models.Movie{}
+	query := "SELECT movie_id, schedule_id, name, description, runtime FROM movies WHERE movie_id = $1"
 	row := r.DB.QueryRow(query, movieID)
 	err := row.Scan(&movie.MovieID, &movie.ScheduleID, &movie.Name, &movie.Description, &movie.Runtime)
 	if err == sql.ErrNoRows {
@@ -84,11 +95,17 @@ func (r *MovieRepository) CreateMovie(movie *models.Movie) error {
 	return nil
 }
 
-// func UpdateMovie(db *sql.DB, movieID string, updatedMovie *models.Movie) error {
+func (r *MovieRepository) UpdateMovie(movieID int, updatedMovie *models.Movie) error {
+	query := "UPDATE movies SET schedule_id =$1 name = $2, description = $3, runtime = $4 WHERE movie_id = $5"
+	_, err := r.DB.Exec(query, updatedMovie.ScheduleID, updatedMovie.Name, updatedMovie.Description, updatedMovie.Runtime, movieID)
+	if err != nil {
+		log.Printf("Error executing query: %v", err)
+		return err
+	}
+	return nil
+}
 
-// }
-
-func (r *MovieRepository) DeleteMovie(movieID uint) error {
+func (r *MovieRepository) DeleteMovie(movieID int) error {
 	query := "DELETE FROM movies where id = $1"
 	_, err := r.DB.Exec(query, movieID)
 	if err == sql.ErrNoRows {
